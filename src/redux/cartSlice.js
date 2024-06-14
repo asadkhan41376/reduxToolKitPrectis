@@ -1,22 +1,48 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState ={
-    items:[
+const initialState = {
+  isDataLoading: false,
+  dataError: null,
+  data: [],
+};
 
-    ]
-}
+const slice = createSlice({
+  name: "cart",
+  initialState,
+  reducers: {
+    //START LOADING
+    startDataLoading(state) {
+      state.isDataLoading = true;
+    },
 
-const cartSlice = createSlice({
-    name:'cart',
-    initialState,
-    reducers:{
-        addTocart:(state,action)=>{
-            state.items.push(action.payload)
-            console.log(state.items.push(action.payload));
-        }
+    //HAS ERROR
+    hasDataError(state, action) {
+      state.isDataLoading = false;
+      state.dataError = action.payload;
+    },
+
+    //SET DATA
+    setData(state, action) {
+      state.isDataLoading = false;
+      state.data = action.payload;
+    },
+  },
+});
+
+export default slice.reducer;
+
+//SET SHOPPING CART DATA
+
+export const getData = () => {
+  return async (dispatch) => {
+    dispatch(slice.actions.startDataLoading());
+    try {
+      const response = await fetch("https://dummyjson.com/products");
+      const data = await response.json();
+      dispatch(slice.actions.setData(data));
+    } catch (error) {
+      console.log(error);
+      dispatch(slice.actions.hasDataError(error.toString()));
     }
-})
-
-export const {addTocart} = cartSlice.actions
-
-export default cartSlice.reducer
+  };
+};
